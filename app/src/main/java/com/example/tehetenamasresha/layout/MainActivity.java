@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ImageView sim = (ImageView) findViewById(R.id.sim);
+
         sim.animate().alpha(0f).setDuration(5000);
 
     }
