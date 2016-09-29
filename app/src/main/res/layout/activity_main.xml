@@ -1,26 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
+    xmlns:meterview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.tehetenamasresha.layout.MainActivity">
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
-
-    <ImageView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@drawable/logo"
-        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content" >
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/run"
+        android:text="@string/run"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="19.70"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginLeft="40dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="48dp"
-        android:id="@+id/sim" />
+        android:layout_alignParentBottom="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        meterview:srcCompat="@drawable/logo"
+        android:id="@+id/imageView3"
+        android:layout_marginBottom="255dp"
+        android:layout_above="@+id/run"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/hamburger" />
+
+    <com.example.tehetenamasresha.layout.MeterView
+     android:id="@+id/meter"
+        android:layout_width="394dp"
+        android:layout_height="228dp"
+        meterview:spacing="10"
+        meterview:lineWidth="5"
+        meterview:lineColor="#0af"
+        meterview:pathColor="#ccc"
+        android:layout_above="@+id/run"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp" />
+
 </RelativeLayout>
