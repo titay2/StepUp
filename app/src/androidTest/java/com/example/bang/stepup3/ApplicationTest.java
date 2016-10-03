@@ -1,4 +1,4 @@
-package com.example.bang.stepuptest2;
+package com.example.bang.stepup3;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

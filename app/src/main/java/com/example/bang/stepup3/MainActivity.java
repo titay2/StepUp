@@ -1,4 +1,4 @@
-package com.example.bang.stepuptest2;
+package com.example.bang.stepup3;
 
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
@@ -8,7 +8,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.metawear.MetaWearBleService;
@@ -16,19 +22,8 @@ import com.mbientlab.metawear.MetaWearBoard;
 
 import java.util.UUID;
 
-/**
- * Created by Bang on 9/29/2016.
- */
-public class ScannerActivity extends AppCompatActivity implements BleScannerFragment.ScannerCommunicationBus, ServiceConnection {
-    private final static UUID[] serviceUuids;
+public class MainActivity extends AppCompatActivity implements BleScannerFragment.ScannerCommunicationBus, ServiceConnection {
     public static final int REQUEST_START_APP= 1;
-
-    static {
-        serviceUuids= new UUID[] {
-                MetaWearBoard.METAWEAR_SERVICE_UUID,
-                MetaWearBoard.METABOOT_SERVICE_UUID
-        };
-    }
 
     private MetaWearBleService.LocalBinder serviceBinder;
     private MetaWearBoard mwBoard;
@@ -36,7 +31,7 @@ public class ScannerActivity extends AppCompatActivity implements BleScannerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.activity_main);
 
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
     }
@@ -60,8 +55,18 @@ public class ScannerActivity extends AppCompatActivity implements BleScannerFrag
     }
 
     @Override
-    public void onDeviceSelected(final BluetoothDevice btDevice) {
-        mwBoard= serviceBinder.getMetaWearBoard(btDevice);
+    public UUID[] getFilterServiceUuids() {
+        return new UUID[] {MetaWearBoard.METAWEAR_SERVICE_UUID};
+    }
+
+    @Override
+    public long getScanDuration() {
+        return 10000L;
+    }
+
+    @Override
+    public void onDeviceSelected(final BluetoothDevice device) {
+        mwBoard= serviceBinder.getMetaWearBoard(device);
 
         final ProgressDialog connectDialog = new ProgressDialog(this);
         connectDialog.setTitle(getString(R.string.title_connecting));
@@ -69,7 +74,7 @@ public class ScannerActivity extends AppCompatActivity implements BleScannerFrag
         connectDialog.setCancelable(false);
         connectDialog.setCanceledOnTouchOutside(false);
         connectDialog.setIndeterminate(true);
-        connectDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.label_cancel), new DialogInterface.OnClickListener() {
+        connectDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mwBoard.disconnect();
@@ -81,8 +86,9 @@ public class ScannerActivity extends AppCompatActivity implements BleScannerFrag
             @Override
             public void connected() {
                 connectDialog.dismiss();
-                Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
-                navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+
+                Intent navActivityIntent = new Intent(MainActivity.this, DeviceSetupActivity.class);
+                navActivityIntent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, device);
                 startActivityForResult(navActivityIntent, REQUEST_START_APP);
             }
 
@@ -100,23 +106,12 @@ public class ScannerActivity extends AppCompatActivity implements BleScannerFrag
     }
 
     @Override
-    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        serviceBinder = (MetaWearBleService.LocalBinder) iBinder;
-        serviceBinder.executeOnUiThread();
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        serviceBinder = (MetaWearBleService.LocalBinder) service;
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName componentName) {
+    public void onServiceDisconnected(ComponentName name) {
 
-    }
-
-    @Override
-    public UUID[] getFilterServiceUuids() {
-        return serviceUuids;
-    }
-
-    @Override
-    public long getScanDuration() {
-        return 10000L;
     }
 }
