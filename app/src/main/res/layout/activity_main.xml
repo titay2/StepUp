@@ -16,4 +16,3 @@
         android:layout_height="match_parent"
         tools:layout="@layout/blescan_device_list" />
 </RelativeLayout>
-

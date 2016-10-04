@@ -5,11 +5,14 @@ package com.example.bang.stepup3;
  */
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -21,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.DataSignal;
 import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -31,7 +35,12 @@ import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Bmi160Accelerometer;
 import com.mbientlab.metawear.module.Bmi160Accelerometer.ProofTime;
 import com.mbientlab.metawear.module.Bmi160Accelerometer.SkipTime;
+import com.mbientlab.metawear.module.DataProcessor;
+import com.mbientlab.metawear.module.Switch;
 import com.mbientlab.metawear.module.Timer;
+import com.mbientlab.metawear.processor.Counter;
+
+import java.util.Map;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -45,6 +54,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     private FragmentSettings settings;
     Bmi160Accelerometer bmi160AccModule;
     Timer timer;
+    Switch switchModule;
     private TextView count;
 
 
@@ -59,8 +69,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         if (!(owner instanceof FragmentSettings)) {
             throw new ClassCastException("Owning activity must implement the FragmentSettings interface");
         }
-
-        count = (TextView)getActivity().findViewById(R.id.textView);
 
         settings = (FragmentSettings) owner;
         owner.getApplicationContext().bindService(new Intent(owner, MetaWearBleService.class), this, Context.BIND_AUTO_CREATE);
@@ -77,8 +85,11 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
-//        count = (TextView)getActivity().findViewById(R.id.textView);
-        return inflater.inflate(R.layout.fragment_device_setup, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_device_setup, container, false);
+        count = (TextView)view.findViewById(R.id.textView);
+
+        return view;
     }
 
     @Override
@@ -114,15 +125,17 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 bmi160AccModule.routeData().fromStepCounter(false).stream("step_counter").commit()
                         .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
                             @Override
-                            public void success(RouteManager result) {
+                            public void success(final RouteManager result) {
                                 result.subscribe("step_counter", new RouteManager.MessageHandler() {
                                     @Override
                                     public void process(Message msg) {
+                                        String text = "Count: " + msg.getData(Integer.class);
                                         Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
+//                                        count.setText(msg.getData(Integer.class));
+                                        sensorMsg(text);
+
                                     }
                                 });
-
-
                             }
                         });
                 //Time interval
@@ -146,18 +159,21 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                                 result.subscribe("step_detector", new RouteManager.MessageHandler() {
                                     @Override
                                     public void process(Message msg) {
-                                        final String axes = msg.getData(Integer.class).toString();
+//                                        final String axes = msg.getData(Integer.class).toString();
                                         Log.i("MainActivity", "You took a step");
 //                                        Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
 //                                        Tried to display data to UI
 //                                        sensorMsg(axes);
                                      }
                                 });
-
-//                                bmi160AccModule.start();
                             }
 
                         });
+
+                bmi160AccModule.routeData().fromStepDetection()
+                        // Count how many digital input samples have passed through
+                        .process("ccounter?size=2", new Counter())
+                        .commit();
             }
         });
         view.findViewById(R.id.acc_stop).setOnClickListener(new View.OnClickListener() {
@@ -196,6 +212,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         try {
             bmi160AccModule = mwBoard.getModule(Bmi160Accelerometer.class);
             timer = mwBoard.getModule(Timer.class);
+            switchModule = mwBoard.getModule(Switch.class);
 
 //            bmi160AccModule.configureAxisSampling()
 //                    .setFullScaleRange(Bmi160Accelerometer.AccRange.AR_16G)
@@ -216,13 +233,24 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
     }
 
-    public void sensorMsg(String msg) {
+
+    public void onSensorChanged(SensorEvent event) {
+
+        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+            String msg = "Count: " + (int)event.values[0];
+            count.setText(msg);
+            System.out.println(msg);
+        }
+    }
+
+    public void sensorMsg(final String msg) {
         final String reading = msg;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+//                view.setContentView(R.layout.fragment_device_setup);
+                count.setText(reading);
 
-                    count.setText(reading);
 
 //                count.setText("Steps: " + reading.getData(Integer.class));
             }
