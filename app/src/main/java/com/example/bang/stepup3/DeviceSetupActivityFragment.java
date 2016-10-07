@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mbientlab.metawear.AsyncOperation;
@@ -55,11 +56,15 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     Bmi160Accelerometer bmi160AccModule;
     Timer timer;
     Switch switchModule;
-    TextView count;
-    TextView count2;
-    int step = 0;
-    int step2 = 0;
-
+    TextView caloriesCount;
+    TextView stepsCount;
+    ImageView foodImage;
+    int initialSteps = 12140;
+    double initialCalories = 540;
+    double caloriesLeft = 540;
+    double caloriesPerStep = 0.0428571;
+    int stepsLeft = 12140;
+    int stepsTaken = 0;
 
     public DeviceSetupActivityFragment() {
     }
@@ -90,8 +95,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         setRetainInstance(true);
 
         View view = inflater.inflate(R.layout.fragment_device_setup, container, false);
-        count = (TextView) view.findViewById(R.id.textView);
-        count2 = (TextView) view.findViewById(R.id.textView2);
+        caloriesCount = (TextView) view.findViewById(R.id.caloriesTextView);
+        stepsCount = (TextView) view.findViewById(R.id.stepsTextView);
+        foodImage = (ImageView) view.findViewById(R.id.imageView);
+
+        foodImage.setImageResource(R.drawable.hamburger);
+        setCaloriesCount();
+        setStepCount();
 
         return view;
     }
@@ -126,37 +136,37 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 bmi160AccModule.readStepCounter(false);
 
                 //Step counter
-                bmi160AccModule.routeData().fromStepCounter(false).stream("step_counter").commit()
-                        .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
-                            @Override
-                            public void success(final RouteManager result) {
-                                result.subscribe("step_counter", new RouteManager.MessageHandler() {
-                                    @Override
-                                    public void process(Message msg) {
-                                        String text = "Count: " + msg.getData(Integer.class);
-                                        Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
-                                        step2 = msg.getData(Integer.class);
-                                        step2++;
-                                        setStepCount2();
-//                                        count.setText(msg.getData(Integer.class));
-//                                        sensorMsg(text);
-
-                                    }
-                                });
-                            }
-                        });
-//                //Time interval
-                timer.scheduleTask(new Timer.Task() {
-                    @Override
-                    public void commands() {
-                        bmi160AccModule.readStepCounter(false);
-                    }
-                }, 1000, false).onComplete(new AsyncOperation.CompletionHandler<Timer.Controller>() {
-                    @Override
-                    public void success(Timer.Controller result) {
-                        result.start();
-                    }
-                });
+//                bmi160AccModule.routeData().fromStepCounter(false).stream("step_counter").commit()
+//                        .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+//                            @Override
+//                            public void success(final RouteManager result) {
+//                                result.subscribe("step_counter", new RouteManager.MessageHandler() {
+//                                    @Override
+//                                    public void process(Message msg) {
+//                                        String text = "Count: " + msg.getData(Integer.class);
+//                                        Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
+//                                        step2 = msg.getData(Integer.class);
+//                                        step2++;
+//                                        setStepCount2();
+////                                        count.setText(msg.getData(Integer.class));
+////                                        sensorMsg(text);
+//
+//                                    }
+//                                });
+//                            }
+//                        });
+////                //Time interval
+//                timer.scheduleTask(new Timer.Task() {
+//                    @Override
+//                    public void commands() {
+//                        bmi160AccModule.readStepCounter(false);
+//                    }
+//                }, 1000, false).onComplete(new AsyncOperation.CompletionHandler<Timer.Controller>() {
+//                    @Override
+//                    public void success(Timer.Controller result) {
+//                        result.start();
+//                    }
+//                });
 
                 // Receive notifications for each step detected
                 bmi160AccModule.routeData().fromStepDetection().stream("step_detector").commit()
@@ -166,9 +176,12 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                                 result.subscribe("step_detector", new RouteManager.MessageHandler() {
                                     @Override
                                     public void process(Message msg) {
-                                        step++;
+                                        stepsTaken++;
 //                                        System.out.println("Co ne " + step);
+                                        calculateStepsLeft();
+                                        calculateCaloriesLeft();
                                         setStepCount();
+                                        setCaloriesCount();
                                     }
                                 });
                             }
@@ -181,7 +194,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             public void onClick(View v) {
                 bmi160AccModule.resetStepCounter();
                 bmi160AccModule.stop();
-                step = 0;
 
 //                bmi160AccModule.disableAxisSampling();
 //                mwBoard.removeRoutes();
@@ -189,22 +201,28 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         });
     }
 
+    void calculateCaloriesLeft() {
+        caloriesLeft = initialCalories - stepsTaken * caloriesPerStep;
+    }
+    void calculateStepsLeft() {
+        stepsLeft = initialSteps - stepsTaken;
+    }
     void setStepCount() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Step counted by StepDetector: " + step;
-                count.setText(stepText);
+                String stepText = "Steps left: " + stepsLeft;
+                stepsCount.setText(stepText);
             }
         });
     }
 
-    void setStepCount2() {
+    void setCaloriesCount() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Step counted by StepCounter: " + step2;
-                count2.setText(stepText);
+                String stepText = "Calories left: " + String.format("%.2f", caloriesLeft);
+                caloriesCount.setText(stepText);
             }
         });
     }
@@ -252,16 +270,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     Snackbar.LENGTH_SHORT).show();
         }
 
-    }
-
-
-    public void onSensorChanged(SensorEvent event) {
-
-        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            String msg = "Count: " + (int) event.values[0];
-            count.setText(msg);
-            System.out.println(msg);
-        }
     }
 
 

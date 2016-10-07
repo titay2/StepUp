@@ -119,6 +119,7 @@ public class DeviceSetupActivity extends AppCompatActivity implements ServiceCon
 
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
+
     }
 
     @Override
