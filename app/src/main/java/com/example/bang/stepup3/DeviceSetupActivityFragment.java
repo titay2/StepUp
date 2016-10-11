@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mbientlab.metawear.AsyncOperation;
@@ -40,7 +43,9 @@ import com.mbientlab.metawear.module.Switch;
 import com.mbientlab.metawear.module.Timer;
 import com.mbientlab.metawear.processor.Counter;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.TimerTask;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -55,10 +60,21 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     Bmi160Accelerometer bmi160AccModule;
     Timer timer;
     Switch switchModule;
-    TextView count;
-    TextView count2;
-    int step = 0;
-    int step2 = 0;
+    TextView caloriesCount;
+    TextView stepsCount;
+    TextView speedView;
+    ImageView foodImage;
+    int initialSteps = 12140;
+    double initialCalories = 540;
+    double caloriesLeft = 540;
+    double caloriesPerStep = 0.0428571;
+    int stepsLeft = 12140;
+    int stepsTaken = 0;
+    double stepLength = 0.5;
+    double speed;
+
+    private long lastTimeStamp = 0;
+    private long currentTimeStamp;
 
 
     public DeviceSetupActivityFragment() {
@@ -75,6 +91,9 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
         settings = (FragmentSettings) owner;
         owner.getApplicationContext().bindService(new Intent(owner, MetaWearBleService.class), this, Context.BIND_AUTO_CREATE);
+
+//        mHandler = new Handler();
+
     }
 
     @Override
@@ -90,8 +109,14 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         setRetainInstance(true);
 
         View view = inflater.inflate(R.layout.fragment_device_setup, container, false);
-        count = (TextView) view.findViewById(R.id.textView);
-        count2 = (TextView) view.findViewById(R.id.textView2);
+        caloriesCount = (TextView) view.findViewById(R.id.caloriesTextView);
+        stepsCount = (TextView) view.findViewById(R.id.stepsTextView);
+        speedView = (TextView) view.findViewById(R.id.speedView);
+        foodImage = (ImageView) view.findViewById(R.id.imageView);
+
+        foodImage.setImageResource(R.drawable.hamburger);
+        setCaloriesCount();
+        setStepCount();
 
         return view;
     }
@@ -120,43 +145,53 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 //                            }
 //                        });
 
+
+//                stepTime = 1;
+//                setStepSpeed();
                 bmi160AccModule.enableStepDetection();
                 bmi160AccModule.start();
 
                 bmi160AccModule.readStepCounter(false);
 
                 //Step counter
-                bmi160AccModule.routeData().fromStepCounter(false).stream("step_counter").commit()
-                        .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
-                            @Override
-                            public void success(final RouteManager result) {
-                                result.subscribe("step_counter", new RouteManager.MessageHandler() {
-                                    @Override
-                                    public void process(Message msg) {
-                                        String text = "Count: " + msg.getData(Integer.class);
-                                        Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
-                                        step2 = msg.getData(Integer.class);
-                                        step2++;
-                                        setStepCount2();
-//                                        count.setText(msg.getData(Integer.class));
-//                                        sensorMsg(text);
+//                bmi160AccModule.routeData().fromStepCounter(false).stream("step_counter").commit()
+//                        .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+//                            @Override
+//                            public void success(final RouteManager result) {
+//                                result.subscribe("step_counter", new RouteManager.MessageHandler() {
+//                                    @Override
+//                                    public void process(Message msg) {
+////                                        stepCounted = msg.getData(Integer.class);
+////                                        stepSpeed = stepCounted*stepLenght;
+////                                        System.out.println("The speed is: "+stepSpeed);
+////                                        Log.i("MainActivity", "Steps= " + msg.getData(Integer.class));
+////                                        step2 = msg.getData(Integer.class);
+////                                        step2++;
+////                                        setStepCount2();
+////                                        count.setText(msg.getData(Integer.class));
+////                                        sensorMsg(text);
+//
+//
+//                                    }
+//                                });
+//                            }
+//                        });
+//////                //Time interval
+//                timer.scheduleTask(new Timer.Task() {
+//                    @Override
+//                    public void commands() {
+//                        bmi160AccModule.readStepCounter(false);
+//
+//                    }
+//                }, 1000, false).onComplete(new AsyncOperation.CompletionHandler<Timer.Controller>() {
+//                    @Override
+//                    public void success(Timer.Controller result) {
+//                        result.start();
+////                        System.out.println("The result from timer is: "+ result);
+//                    }
+//                });
 
-                                    }
-                                });
-                            }
-                        });
-//                //Time interval
-                timer.scheduleTask(new Timer.Task() {
-                    @Override
-                    public void commands() {
-                        bmi160AccModule.readStepCounter(false);
-                    }
-                }, 1000, false).onComplete(new AsyncOperation.CompletionHandler<Timer.Controller>() {
-                    @Override
-                    public void success(Timer.Controller result) {
-                        result.start();
-                    }
-                });
+
 
                 // Receive notifications for each step detected
                 bmi160AccModule.routeData().fromStepDetection().stream("step_detector").commit()
@@ -164,11 +199,22 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                             @Override
                             public void success(RouteManager result) {
                                 result.subscribe("step_detector", new RouteManager.MessageHandler() {
+
                                     @Override
                                     public void process(Message msg) {
-                                        step++;
-//                                        System.out.println("Co ne " + step);
+                                        stepsTaken++;
+                                        currentTimeStamp = msg.getTimestamp().getTimeInMillis();
+                                        double period = currentTimeStamp - lastTimeStamp;
+                                        speed = (stepLength)/(period/1000);
+                                        System.out.println("Period is: "+period/1000);
+                                        setStepSpeed();
+//                                        System.out.println("time stamp is: "+ currentTimeStamp);
+//                                        System.out.println("difference: " + (currentTimeStamp - lastTimeStamp));
+                                        lastTimeStamp = currentTimeStamp;
+                                        calculateStepsLeft();
+                                        calculateCaloriesLeft();
                                         setStepCount();
+                                        setCaloriesCount();
                                     }
                                 });
                             }
@@ -181,33 +227,88 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             public void onClick(View v) {
                 bmi160AccModule.resetStepCounter();
                 bmi160AccModule.stop();
-                step = 0;
+//                stepTime = 1;
 
 //                bmi160AccModule.disableAxisSampling();
 //                mwBoard.removeRoutes();
             }
         });
+
+
+
+    }
+
+    void calculateCaloriesLeft() {
+        caloriesLeft = initialCalories - stepsTaken * caloriesPerStep;
+    }
+    void calculateStepsLeft() {
+        stepsLeft = initialSteps - stepsTaken;
     }
 
     void setStepCount() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Step counted by StepDetector: " + step;
-                count.setText(stepText);
+                String stepText = "Steps left: " + stepsLeft;
+                stepsCount.setText(stepText);
             }
         });
     }
 
-    void setStepCount2() {
+    void setStepSpeed() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Step counted by StepCounter: " + step2;
-                count2.setText(stepText);
+                String speedStep = "Your Speed: " + String.format("%.2f", speed) + " m/s";
+                System.out.println("Your Speed: " + speed);
+                speedView.setText(speedStep);
             }
         });
     }
+
+
+
+//    Handler mHandler;
+//    public void setStepSpeed() {
+////        mHandler = new Handler();
+//        stepTime = 1;
+//        mHandler.post(mRunnable);
+////        mHandler.postDelayed(mRunnable, 1000);
+//    }
+//
+//    private Runnable mRunnable = new Runnable() {
+//
+//        @Override
+//        public void run() {
+////            Log.e("Handlers", "Calls");
+//            /** Do something **/
+//
+//            double speed = (stepCounted*stepLenght)/10;
+//            String stepSpeed = "Speed: "+ speed;
+////            System.out.println("Your speed is: "+ stepSpeed);
+//            Log.i("Your speed is: ", stepSpeed);
+//            String stepTaken = ".."+stepsTaken;
+//            Log.i("Your step taken is: ", stepTaken);
+//            String time = "..." +stepTime;
+//            Log.i("Your time is: ", time);
+//            mHandler.postDelayed(mRunnable, 10000);
+//            stepTime++;
+//
+//        }
+//
+//    };
+
+
+    void setCaloriesCount() {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                //Display step to UI
+                String stepText = "Calories left: " + String.format("%.2f", caloriesLeft);
+                caloriesCount.setText(stepText);
+            }
+        });
+    }
+
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -252,16 +353,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     Snackbar.LENGTH_SHORT).show();
         }
 
-    }
-
-
-    public void onSensorChanged(SensorEvent event) {
-
-        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            String msg = "Count: " + (int) event.values[0];
-            count.setText(msg);
-            System.out.println(msg);
-        }
     }
 
 
