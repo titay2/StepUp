@@ -50,7 +50,7 @@ public class FoodAdapter extends ArrayAdapter<FoodItem> {
 
         viewHolder.foodImage.setImageResource(foodList.get(position).getImageId(context));
         viewHolder.foodName.setText(foodList.get(position).getFoodName());
-        viewHolder.foodCalories.setText("Calories: " + foodList.get(position).getCaloriesLeft().toString());
+        viewHolder.foodCalories.setText("Calories: " + String.format("%.2f", foodList.get(position).getCaloriesLeft().toString()));
         viewHolder.foodSteps.setText("Steps: " + foodList.get(position).getStepsLeft().toString());
 
         return convertView;

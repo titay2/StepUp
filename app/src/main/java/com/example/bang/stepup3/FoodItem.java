@@ -7,17 +7,13 @@ import android.content.Context;
 public class FoodItem {
     private String foodImage;
     private String foodName;
-    private Double totalCalories;
-    private Integer totalSteps;
     private Double caloriesLeft;
     private Integer stepsLeft;
 
-    public FoodItem(String foodImage, String foodName, Double totalCalories, Integer totalSteps, Double caloriesLeft, Integer stepsLeft) {
+    public FoodItem(String foodImage, String foodName, Integer stepsLeft) {
         this.foodImage = foodImage;
         this.foodName = foodName;
-        this.totalCalories = totalCalories;
-        this.totalSteps = totalSteps;
-        this.caloriesLeft = caloriesLeft;
+        this.caloriesLeft = stepsLeft * 0.0435871;
         this.stepsLeft = stepsLeft;
     }
 
@@ -35,14 +31,6 @@ public class FoodItem {
 
     public String getFoodName() {
         return foodName;
-    }
-
-    public Double getTotalCalories() {
-        return totalCalories;
-    }
-
-    public Integer getTotalSteps() {
-        return totalSteps;
     }
 
     public Double getCaloriesLeft() {
