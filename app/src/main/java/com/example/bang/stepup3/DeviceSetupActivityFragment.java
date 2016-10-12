@@ -65,11 +65,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     ImageView foodImage;
 
     FoodItem foodItem;
-    int initialSteps = 12140;
-    double initialCalories = 540;
-    double caloriesLeft = 540;
     double caloriesPerStep = 0.0428571;
-    int stepsLeft = 12140;
     int stepsTaken = 0;
 
     public DeviceSetupActivityFragment() {
@@ -213,16 +209,18 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     }
 
     void calculateCaloriesLeft() {
-        caloriesLeft = initialCalories - stepsTaken * caloriesPerStep;
+        Double caloriesLeft = foodItem.getCaloriesLeft() - caloriesPerStep;
+        foodItem.setCaloriesLeft(caloriesLeft);
     }
     void calculateStepsLeft() {
-        stepsLeft = initialSteps - stepsTaken;
+        Integer stepsLeft = foodItem.getStepsLeft() - 1;
+        foodItem.setStepsLeft(stepsLeft);
     }
     void setStepCount() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Steps left: " + stepsLeft;
+                String stepText = "Steps left: " + foodItem.getStepsLeft();
                 stepsCount.setText(stepText);
             }
         });
@@ -232,7 +230,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //Display step to UI
-                String stepText = "Calories left: " + String.format("%.2f", caloriesLeft);
+                String stepText = "Calories left: " + String.format("%.2f", foodItem.getCaloriesLeft());
                 caloriesCount.setText(stepText);
             }
         });
@@ -241,7 +239,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mwBoard = ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(settings.getBtDevice());
-//        ready();
+        ready();
     }
 
     @Override
