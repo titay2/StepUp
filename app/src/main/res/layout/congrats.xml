@@ -7,7 +7,7 @@
         android:layout_width="fill_parent"
         android:layout_height="300dp"
         android:id="@+id/imageView4"
-        android:src="@drawable/Smiley1" />
+        android:src="@drawable/smiley" />
 
     <TextView
         android:layout_width="wrap_content"

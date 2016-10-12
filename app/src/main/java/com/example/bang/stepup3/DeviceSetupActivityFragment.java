@@ -217,6 +217,11 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     }
     void calculateStepsLeft() {
         Integer stepsLeft = foodItem.getStepsLeft() - 1;
+        if (stepsLeft <= 0) {
+            stepsLeft = 0;
+            final Fragment congratsFragment = new CongratsFragment();
+            getActivity().getSupportFragmentManager().beginTransaction().add(R.id.device_setup_fragment, congratsFragment).commit();
+        }
         foodItem.setStepsLeft(stepsLeft);
     }
     void setStepCount() {
