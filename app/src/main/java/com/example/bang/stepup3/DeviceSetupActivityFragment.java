@@ -106,11 +106,9 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         position = getActivity().getIntent().getExtras().getInt("position");
         foodItem = User.getInstance().getFoodList().get(position);
         foodImage.setImageResource(foodItem.getImageId(getActivity()));
-        caloriesCount.setText("Calories: " + String.format("%.2f", foodItem.getCaloriesLeft());
+        caloriesCount.setText("Calories: " + String.format("%.2f", foodItem.getCaloriesLeft()));
         stepsCount.setText("Steps: " + foodItem.getStepsLeft());
         foodName.setText(foodItem.getFoodName());
-//        setCaloriesCount();
-//        setStepCount();
 
         return view;
     }
@@ -212,6 +210,9 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
     void calculateCaloriesLeft() {
         Double caloriesLeft = foodItem.getCaloriesLeft() - caloriesPerStep;
+        if (caloriesLeft <= 0) {
+            caloriesLeft = 0.0;
+        }
         foodItem.setCaloriesLeft(caloriesLeft);
     }
     void calculateStepsLeft() {

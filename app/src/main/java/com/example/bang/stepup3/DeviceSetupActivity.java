@@ -164,4 +164,9 @@ public class DeviceSetupActivity extends AppCompatActivity implements ServiceCon
     public BluetoothDevice getBtDevice() {
         return btDevice;
     }
+
+    public void showCongratsView() {
+        final Fragment congratsFragment = new CongratsFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.device_setup_fragment, congratsFragment).commit();
+    }
 }
