@@ -87,9 +87,14 @@ public class MainActivity extends AppCompatActivity implements BleScannerFragmen
             public void connected() {
                 connectDialog.dismiss();
 
-                Intent navActivityIntent = new Intent(MainActivity.this, DeviceSetupActivity.class);
-                navActivityIntent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, device);
-                startActivityForResult(navActivityIntent, REQUEST_START_APP);
+//                Intent navActivityIntent = new Intent(MainActivity.this, DeviceSetupActivity.class);
+//                navActivityIntent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, device);
+//                startActivityForResult(navActivityIntent, REQUEST_START_APP);
+
+                Intent intent = new Intent(MainActivity.this, FoodListActivity.class);
+                intent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, device);
+                startActivityForResult(intent, REQUEST_START_APP);
+//                startActivity(intent);
             }
 
             @Override

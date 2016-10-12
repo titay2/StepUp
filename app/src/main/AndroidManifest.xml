@@ -23,6 +23,10 @@
             android:name=".DeviceSetupActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".FoodListActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

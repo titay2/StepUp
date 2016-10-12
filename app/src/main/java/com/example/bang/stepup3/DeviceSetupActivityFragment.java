@@ -41,6 +41,8 @@ import com.mbientlab.metawear.module.Switch;
 import com.mbientlab.metawear.module.Timer;
 import com.mbientlab.metawear.processor.Counter;
 
+import org.w3c.dom.Text;
+
 import java.util.Map;
 
 /**
@@ -56,9 +58,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     Bmi160Accelerometer bmi160AccModule;
     Timer timer;
     Switch switchModule;
+
+    TextView foodName;
     TextView caloriesCount;
     TextView stepsCount;
     ImageView foodImage;
+
+    FoodItem foodItem;
     int initialSteps = 12140;
     double initialCalories = 540;
     double caloriesLeft = 540;
@@ -98,10 +104,15 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         caloriesCount = (TextView) view.findViewById(R.id.caloriesTextView);
         stepsCount = (TextView) view.findViewById(R.id.stepsTextView);
         foodImage = (ImageView) view.findViewById(R.id.imageView);
+        foodName = (TextView) view.findViewById(R.id.foodName);
 
-        foodImage.setImageResource(R.drawable.hamburger);
-        setCaloriesCount();
-        setStepCount();
+        foodItem = (FoodItem) getActivity().getIntent().getSerializableExtra("foodItem");
+        foodImage.setImageResource(foodItem.getImageId(getActivity()));
+        caloriesCount.setText("Calories: " + foodItem.getCaloriesLeft());
+        stepsCount.setText("Steps: " + foodItem.getStepsLeft());
+        foodName.setText(foodItem.getFoodName());
+//        setCaloriesCount();
+//        setStepCount();
 
         return view;
     }
@@ -230,7 +241,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mwBoard = ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(settings.getBtDevice());
-        ready();
+//        ready();
     }
 
     @Override

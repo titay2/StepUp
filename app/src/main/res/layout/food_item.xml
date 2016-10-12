@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- postitem.xml -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="200dip"
+        android:id="@+id/foodImage"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:scaleType="centerCrop" />
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="200dip"
+        android:layout_alignBottom="@+id/foodImage"
+        android:background="#000000"
+        android:alpha="0.6"
+        android:layout_alignParentEnd="false" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="200dip"
+        android:layout_alignBottom="@+id/foodImage">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="FOOD NAME"
+            android:id="@+id/foodName"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="false"
+            android:textStyle="bold"
+            android:textSize="30dp"
+            android:textColor="#ffffff"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="5dp"
+            android:focusable="false"
+            android:typeface="normal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Calories:"
+            android:id="@+id/totalCalories"
+            android:layout_below="@+id/foodName"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textStyle="italic"
+            android:textSize="16dp"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Steps:"
+            android:id="@+id/totalSteps"
+            android:layout_below="@+id/foodName"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textStyle="italic"
+            android:textSize="16dp"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+
+</RelativeLayout>
