@@ -3,6 +3,7 @@ package com.example.bang.stepup3;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,20 +25,18 @@ public class FoodListActivity extends AppCompatActivity {
         setContentView(R.layout.food_list);
         btDevice = getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         mListView = (ListView) findViewById(R.id.listView);
-// 1
-//        final ArrayList<Recipe> recipeList = Recipe.getRecipesFromFile("recipes.json", this);
-// 2
 
-//        String[] listItems = new String[recipeList.size()];
-// 3
-//        for(int i = 0; i < recipeList.size(); i++){
-//            Recipe recipe = recipeList.get(i);
-//            listItems[i] = recipe.title;
-//        }
-// 4
         adapter = new FoodAdapter(this, R.layout.food_item, User.getInstance().getFoodList());
         mListView.setAdapter(adapter);
         mListView.setOnItemClickListener(onItemClickListener);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override
