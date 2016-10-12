@@ -16,7 +16,6 @@ public class FoodListActivity extends AppCompatActivity {
     public final static String EXTRA_BT_DEVICE= "com.example.bang.stepup3.DeviceSetupActivity.EXTRA_BT_DEVICE";
 
     private ListView mListView;
-    private ArrayList<FoodItem> foodList;
     BluetoothDevice btDevice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +26,6 @@ public class FoodListActivity extends AppCompatActivity {
 // 1
 //        final ArrayList<Recipe> recipeList = Recipe.getRecipesFromFile("recipes.json", this);
 // 2
-        foodList = new ArrayList<FoodItem>();
-        FoodItem hamburger = new FoodItem("hamburger2", "Hamburger", 1000.0, 1000, 1000.0, 1000);
-        FoodItem hotdog = new FoodItem("hotdog", "Hot Dog", 1200.0, 1200, 1200.0, 1200);
-        FoodItem burrito = new FoodItem("burrito", "Chicken Burritos", 100.0, 100, 100.0, 1000);
-        FoodItem frenchfries = new FoodItem("frenchfries", "French fries", 1200.0, 1200, 1200.0, 1200);
-        foodList.add(hamburger);
-        foodList.add(hotdog);
-        foodList.add(burrito);
-        foodList.add(frenchfries);
 
 //        String[] listItems = new String[recipeList.size()];
 // 3
@@ -44,7 +34,7 @@ public class FoodListActivity extends AppCompatActivity {
 //            listItems[i] = recipe.title;
 //        }
 // 4
-        FoodAdapter adapter = new FoodAdapter(this, R.layout.food_item, foodList);
+        FoodAdapter adapter = new FoodAdapter(this, R.layout.food_item, User.getInstance().getFoodList());
         mListView.setAdapter(adapter);
         mListView.setOnItemClickListener(onItemClickListener);
     }
@@ -57,9 +47,8 @@ public class FoodListActivity extends AppCompatActivity {
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            FoodItem foodItem = foodList.get(position);
             Intent intent = new Intent(FoodListActivity.this, DeviceSetupActivity.class);
-            intent.putExtra("foodItem", foodItem);
+            intent.putExtra("position", position);
             intent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, btDevice);
             startActivityForResult(intent, 1);
 

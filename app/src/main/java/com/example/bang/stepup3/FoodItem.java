@@ -1,11 +1,10 @@
 package com.example.bang.stepup3;
 
 import android.content.Context;
-import java.io.Serializable;
 /**
  * Created by haiphan on 10/12/16.
  */
-public class FoodItem implements Serializable {
+public class FoodItem {
     private String foodImage;
     private String foodName;
     private Double totalCalories;

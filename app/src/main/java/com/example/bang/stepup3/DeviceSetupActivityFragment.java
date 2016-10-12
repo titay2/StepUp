@@ -64,6 +64,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     TextView stepsCount;
     ImageView foodImage;
 
+    Integer position;
     FoodItem foodItem;
     double caloriesPerStep = 0.0428571;
     int stepsTaken = 0;
@@ -102,7 +103,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         foodImage = (ImageView) view.findViewById(R.id.imageView);
         foodName = (TextView) view.findViewById(R.id.foodName);
 
-        foodItem = (FoodItem) getActivity().getIntent().getSerializableExtra("foodItem");
+        position = getActivity().getIntent().getExtras().getInt("position");
+        foodItem = User.getInstance().getFoodList().get(position);
         foodImage.setImageResource(foodItem.getImageId(getActivity()));
         caloriesCount.setText("Calories: " + foodItem.getCaloriesLeft());
         stepsCount.setText("Steps: " + foodItem.getStepsLeft());
