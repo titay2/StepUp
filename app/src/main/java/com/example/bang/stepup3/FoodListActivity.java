@@ -16,6 +16,7 @@ public class FoodListActivity extends AppCompatActivity {
     public final static String EXTRA_BT_DEVICE= "com.example.bang.stepup3.DeviceSetupActivity.EXTRA_BT_DEVICE";
 
     private ListView mListView;
+    FoodAdapter adapter;
     BluetoothDevice btDevice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +35,15 @@ public class FoodListActivity extends AppCompatActivity {
 //            listItems[i] = recipe.title;
 //        }
 // 4
-        FoodAdapter adapter = new FoodAdapter(this, R.layout.food_item, User.getInstance().getFoodList());
+        adapter = new FoodAdapter(this, R.layout.food_item, User.getInstance().getFoodList());
         mListView.setAdapter(adapter);
         mListView.setOnItemClickListener(onItemClickListener);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
