@@ -66,6 +66,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
     Integer position;
     FoodItem foodItem;
+    Boolean congratsShowed = false;
     double caloriesPerStep = 0.0428571;
     int stepsTaken = 0;
 
@@ -216,13 +217,16 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         foodItem.setCaloriesLeft(caloriesLeft);
     }
     void calculateStepsLeft() {
-        Integer stepsLeft = foodItem.getStepsLeft() - 1;
-        if (stepsLeft <= 0) {
-            stepsLeft = 0;
-            Intent intent = new Intent(getActivity(), CongratsActivity.class);
-            startActivity(intent);
+        if (foodItem.getStepsLeft() >= 1) {
+            Integer stepsLeft = foodItem.getStepsLeft() - 1;
+            foodItem.setStepsLeft(stepsLeft);
+        } else {
+            if (!congratsShowed) {
+                congratsShowed = true;
+                Intent intent = new Intent(getActivity(), CongratsActivity.class);
+                getActivity().startActivity(intent);
+            }
         }
-        foodItem.setStepsLeft(stepsLeft);
     }
     void setStepCount() {
         getActivity().runOnUiThread(new Runnable() {
