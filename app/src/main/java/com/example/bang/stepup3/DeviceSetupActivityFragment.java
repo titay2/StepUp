@@ -224,6 +224,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             if (!congratsShowed) {
                 congratsShowed = true;
                 Intent intent = new Intent(getActivity(), CongratsActivity.class);
+                intent.putExtra("foodName", foodItem.getFoodName());
                 getActivity().startActivity(intent);
             }
         }
