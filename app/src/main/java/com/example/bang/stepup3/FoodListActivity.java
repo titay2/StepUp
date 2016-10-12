@@ -34,7 +34,8 @@ public class FoodListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(FoodListActivity.this, AddFoodActivity.class);
+                startActivity(intent);
             }
         });
     }
