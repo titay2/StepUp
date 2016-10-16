@@ -27,10 +27,15 @@ public class AddFoodActivity extends AppCompatActivity {
         FoodItem hotdog = new FoodItem("hotdog", "Hot Dog", 40);
         FoodItem burrito = new FoodItem("burrito", "Chicken Burritos", 20);
         FoodItem frenchfries = new FoodItem("frenchfries", "French fries", 10);
+        FoodItem icecream = new FoodItem("ice_cream", "Ice Cream", 20);
+        FoodItem crepe = new FoodItem("crepe", "Crepes", 30);
+
         foodList.add(hamburger);
         foodList.add(hotdog);
         foodList.add(burrito);
         foodList.add(frenchfries);
+        foodList.add(icecream);
+        foodList.add(crepe);
 
         adapter = new FoodAdapter(this, R.layout.food_item, foodList);
         mListView.setAdapter(adapter);
