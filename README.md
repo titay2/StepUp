@@ -48,4 +48,6 @@ bmi160AccModule.routeData().fromStepDetection().stream("step_detector").commit()
 });
 ```
 
-
+##References:
+- [Metawear Android API](https://github.com/mbientlab/Metawear-AndroidAPI)
+- [BMI160 Accelerometer sensor](https://mbientlab.com/androiddocs/latest/bmi160_accelerometer.html)
