@@ -10,8 +10,8 @@ Unlike other pedometer apps which track steps of users and convert those steps i
 
 ## Screenshots
 
-![alt tag](https://github.com/titay2/StepUp/blob/master/14632770_1312896135421267_512722842_o.jpg)
-![alt tag](https://github.com/titay2/StepUp/blob/master/14672651_1312896115421269_125766546_o.jpg)
+![alt tag](https://github.com/titay2/StepUp/blob/master/14632770_1312896135421267_512722842_o.jpg =300x)
+![alt tag](https://github.com/titay2/StepUp/blob/master/14672651_1312896115421269_125766546_o.jpg =300x)
 
 ## Features
 - Scan for bluetooth device
